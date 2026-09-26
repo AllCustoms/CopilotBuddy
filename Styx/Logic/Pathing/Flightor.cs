@@ -196,7 +196,9 @@ namespace Styx.Logic.Pathing
                 // for faster patrol before falling back to on-foot navigation.
                 // ShouldWalk returns true here because !CanFly, not because distance is short,
                 // so mounting is appropriate.  Mount.MountUp() is a no-op when cooldown is active.
-                if (!CanFly && !StyxWoW.Me.Mounted)
+                // Don't mount inside MountDistance or where Navigator.MoveTo would dismount again
+                // (within 10 yd of a vendor/trainer/mail POI), or the two alternate every tick.
+                if (!CanFly && !StyxWoW.Me.Mounted && Mount.ShouldMount(destination) && !Mount.ShouldDismount(destination))
                     Mount.MountUp();
                 Navigator.MoveTo(destination);
                 return;
