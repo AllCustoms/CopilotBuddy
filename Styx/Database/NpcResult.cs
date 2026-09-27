@@ -1,4 +1,5 @@
 #nullable disable
+using System;
 using System.Data.SQLite;
 using Styx;
 using Styx.Logic.Pathing;
@@ -9,7 +10,7 @@ namespace Styx.Database
     /// <summary>
     /// Represents an NPC result from the SQLite database.
     /// </summary>
-    public class NpcResult
+    public class NpcResult : IEquatable<NpcResult>
     {
         /// <summary>
         /// Creates an NpcResult from a SQLiteDataReader (HB API).
@@ -103,6 +104,54 @@ namespace Styx.Database
                 if (npcTemplate == null) return false;
                 return myTemplate.GetReactionTowards(npcTemplate) < WoWUnitReaction.Neutral;
             }
+        }
+
+        public static bool operator ==(NpcResult left, NpcResult right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(NpcResult left, NpcResult right)
+        {
+            return !Equals(left, right);
+        }
+
+        public bool Equals(NpcResult other)
+        {
+            if (ReferenceEquals(null, other))
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
+            return other.X.Equals(X) && other.Y.Equals(Y) && other.Z.Equals(Z) && other.Entry == Entry &&
+                   Equals(other.Name, Name) && Equals(other.Title, Title) && other.MapId == MapId &&
+                   other.NpcFlags == NpcFlags && other.Faction == Faction && other.TrainerType == TrainerType &&
+                   other.TrainerClass == TrainerClass;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+                return false;
+            if (ReferenceEquals(this, obj))
+                return true;
+            if (obj.GetType() != typeof(NpcResult))
+                return false;
+            return Equals((NpcResult)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            int num = X.GetHashCode();
+            num = (num * 397) ^ Y.GetHashCode();
+            num = (num * 397) ^ Z.GetHashCode();
+            num = (num * 397) ^ Entry;
+            num = (num * 397) ^ (Name != null ? Name.GetHashCode() : 0);
+            num = (num * 397) ^ (Title != null ? Title.GetHashCode() : 0);
+            num = (num * 397) ^ MapId;
+            num = (num * 397) ^ NpcFlags.GetHashCode();
+            num = (num * 397) ^ Faction.GetHashCode();
+            num = (num * 397) ^ TrainerType;
+            return (num * 397) ^ TrainerClass;
         }
     }
 }
