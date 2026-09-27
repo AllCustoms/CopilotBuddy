@@ -2691,7 +2691,7 @@ namespace Bots.DungeonBuddy
         {
             try
             {
-                var faction = StyxWoW.Me?.Faction;
+                var faction = StyxWoW.Me?.FactionTemplate;
                 if (faction == null) return null;
                 return NpcQueries.GetNearestNpc(
                     faction,

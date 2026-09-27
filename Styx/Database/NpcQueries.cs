@@ -110,7 +110,7 @@ namespace Styx.Database
         /// <param name="searchLocation">The search location.</param>
         /// <param name="searchClass">The class to search for.</param>
         /// <returns>The nearest trainer, or null if not found.</returns>
-        public static NpcResult GetNearestTrainer(WoWFaction myFaction, uint mapId, WoWPoint searchLocation, WoWClass searchClass)
+        public static NpcResult GetNearestTrainer(WoWFactionTemplate myFaction, uint mapId, WoWPoint searchLocation, WoWClass searchClass)
         {
             EnsureInitialized();
             if (_getNearestTrainerCmd == null) return null;
@@ -131,7 +131,7 @@ namespace Styx.Database
             while (reader.Read())
             {
                 NpcResult result = new NpcResult(reader);
-                if ((result.NpcFlags & 32U) != 0U && myFaction.RelationTo(new WoWFaction(result.Faction)) >= WoWUnitReaction.Neutral)
+                if ((result.NpcFlags & 32U) != 0U && myFaction.GetReactionTowards(WoWFactionTemplate.FromId(result.Faction)) >= WoWUnitReaction.Neutral)
                 {
                     if (_trainerNavCache.TryGetValue(result, out bool cached))
                     {
@@ -157,7 +157,7 @@ namespace Styx.Database
         /// <param name="searchLocation">The search location.</param>
         /// <param name="npcFlags">The NPC flags to search for.</param>
         /// <returns>The nearest NPC, or null if not found.</returns>
-        public static NpcResult GetNearestNpc(WoWFaction myFaction, uint mapId, WoWPoint searchLocation, UnitNPCFlags npcFlags, ISet<int>? excludedEntries = null)
+        public static NpcResult GetNearestNpc(WoWFactionTemplate myFaction, uint mapId, WoWPoint searchLocation, UnitNPCFlags npcFlags, ISet<int>? excludedEntries = null)
         {
             EnsureInitialized();
             if (_getNearestNpcCmd == null) return null;
@@ -194,7 +194,7 @@ namespace Styx.Database
                 
                 // Check if class trainer matches our class (if applicable) and faction is friendly
                 if (((npcFlags & UnitNPCFlags.ClassTrainer) == UnitNPCFlags.None || result.TrainerClass == (int)myClass) &&
-                    myFaction.RelationTo(new WoWFaction(result.Faction)) >= WoWUnitReaction.Neutral)
+                    myFaction.GetReactionTowards(WoWFactionTemplate.FromId(result.Faction)) >= WoWUnitReaction.Neutral)
                 {
                     if (_npcNavCache.TryGetValue(result, out bool cached))
                     {

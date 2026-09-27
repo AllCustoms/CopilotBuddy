@@ -151,7 +151,7 @@ namespace Styx.Logic.Profiles
                                 excluded.Add(blacklisted.Entry);
 
                             NpcResult nearestNpc = NpcQueries.GetNearestNpc(
-                                StyxWoW.Me.FactionTemplate.Faction,
+                                StyxWoW.Me.FactionTemplate,
                                 StyxWoW.Me.MapId,
                                 StyxWoW.Me.Location,
                                 type.AsNpcFlag(),
