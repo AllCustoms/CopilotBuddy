@@ -237,12 +237,6 @@ namespace Styx.Logic.Pathing
 
 			ApplyAliveQueryFilter(me.IsAlive);
 
-			if (me.IsSwimming && !HasShortGroundPath(me.Location, destination, 2000f))
-			{
-				Navigator.PlayerMover.MoveTowards(destination);
-				return MoveResult.Moved;
-			}
-
 			float distance = me.Location.Distance(destination);
 			if (distance < precision)
 			{
@@ -761,14 +755,6 @@ namespace Styx.Logic.Pathing
 		#endregion
 
 		#region Internal — start-index skip (HB 6.2.3 method_14)
-
-		private bool HasShortGroundPath(WoWPoint from, WoWPoint to, float maxLength)
-		{
-			TripperNav.PathFindResult result = FindPath(from, to);
-			if (result.Succeeded && !result.IsPartialPath && result.Points != null)
-				return ComputePathLength(result.Points) <= maxLength;
-			return false;
-		}
 
 		/// <summary>
 		/// HB 6.2.3 MeshNavigator.method_14: skips waypoints the player has already passed.
