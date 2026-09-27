@@ -48,7 +48,6 @@ public class ProfileHelperFunctionsBase
     {
         if (this.Me.QuestLog.GetQuestById(questId) == null)
             return false;
-        // GetQuestLogIndexByID doesn't exist on 3.3.5a; the quest id is GetQuestLogTitle's 9th return value.
         return Lua.GetReturnVal<int>(
             "for i=1,GetNumQuestLogEntries() do " +
             "local _,_,_,_,header,_,_,_,id=GetQuestLogTitle(i) " +
