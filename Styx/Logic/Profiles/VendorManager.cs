@@ -140,9 +140,7 @@ namespace Styx.Logic.Profiles
                 if (source == null || source.Count == 0)
                 {
                     // Only fall back to Data.bin if FindVendorsAutomatically is enabled
-                    // AND the profile has no vendors defined at all
-                    if (Styx.Helpers.CharacterSettings.Instance.FindVendorsAutomatically && 
-                        (AllVendors == null || AllVendors.Count == 0))
+                    if (Styx.Helpers.CharacterSettings.Instance.FindVendorsAutomatically)
                     {
                         try
                         {
