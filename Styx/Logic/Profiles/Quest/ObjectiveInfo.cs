@@ -41,7 +41,7 @@ namespace Styx.Logic.Profiles.Quest
 					XAttribute? typeAttr = element.Attribute("Type");
 					if (typeAttr != null)
 					{
-						if (Enum.TryParse<ObjectiveType>(typeAttr.Value, true, out ObjectiveType objType))
+						if (TryParseObjectiveType(typeAttr.Value, out ObjectiveType objType))
 						{
 							if (_objectiveFactories.TryGetValue(objType, out var factory))
 							{
@@ -64,6 +64,37 @@ namespace Styx.Logic.Profiles.Quest
 				}
 			}
 			throw new ProfileUnknownElementException(element, "TurnIn", "HandIn", "Objective", "KillMob", "CollectItem", "UseObject");
+		}
+
+		internal static bool TryParseObjectiveType(string value, out ObjectiveType objectiveType)
+		{
+			switch (value.ToLowerInvariant())
+			{
+				case "turnin":
+				case "handin":
+					objectiveType = ObjectiveType.TurnIn;
+					return true;
+				case "grind":
+				case "kill":
+				case "killmob":
+				case "slay":
+				case "slaymob":
+					objectiveType = ObjectiveType.KillMob;
+					return true;
+				case "gather":
+				case "getitem":
+				case "gatheritem":
+				case "collect":
+				case "collectitem":
+					objectiveType = ObjectiveType.CollectItem;
+					return true;
+				case "useobject":
+				case "use":
+					objectiveType = ObjectiveType.UseObject;
+					return true;
+			}
+			objectiveType = ObjectiveType.None;
+			return false;
 		}
 	}
 }

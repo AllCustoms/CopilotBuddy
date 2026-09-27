@@ -42,29 +42,28 @@ namespace Styx.Logic.Profiles.Quest
 
         public static ObjectiveNode FromXml(XElement element)
         {
-            var questIdAttr = element.Attribute("QuestId");
-            uint questId = 0;
-            if (questIdAttr != null)
-                uint.TryParse(questIdAttr.Value, out questId);
+            var questIdAttr = GetAttributeByAliases(element, new[] { "quest", "questid" });
+            if (questIdAttr == null)
+                throw new ProfileMissingAttributeException<int>("QuestId", element);
+            if (!uint.TryParse(questIdAttr.Value, out uint questId))
+                throw new ProfileAttributeExpectedException<int>(questIdAttr);
 
-            ObjectiveType objectiveType = ObjectiveType.KillMob;
-            var typeAttr = element.Attribute("Type");
-            if (typeAttr != null)
-            {
-                if (!Enum.TryParse<ObjectiveType>(typeAttr.Value, true, out objectiveType))
-                {
-                    objectiveType = ObjectiveType.KillMob;  // Fallback
-                }
-            }
+            var typeAttr = GetAttributeByAliases(element, new[] { "type" });
+            if (typeAttr == null)
+                throw new ProfileMissingAttributeException("Type", element);
+            if (!ObjectiveInfo.TryParseObjectiveType(typeAttr.Value, out ObjectiveType objectiveType) ||
+                (objectiveType != ObjectiveType.CollectItem && objectiveType != ObjectiveType.KillMob && objectiveType != ObjectiveType.UseObject))
+                throw new ProfileAttributeExpectedException(typeAttr);
 
             // Get objective ID using type-specific aliases (HB 4.3.4: smethod_2)
             string[] idAliases = GetIdAliases(objectiveType);
             var objectiveIdAttr = GetAttributeByAliases(element, idAliases);
-            uint objectiveId = 0;
-            if (objectiveIdAttr != null)
-                uint.TryParse(objectiveIdAttr.Value, out objectiveId);
+            if (objectiveIdAttr == null)
+                throw new ProfileMissingAttributeException<int>(GetIdName(objectiveType), element);
+            if (!uint.TryParse(objectiveIdAttr.Value, out uint objectiveId))
+                throw new ProfileAttributeExpectedException<int>(objectiveIdAttr);
 
-            string objectiveName = element.Attribute("Name")?.Value;
+            string objectiveName = GetAttributeByAliases(element, new[] { "Name" })?.Value;
 
             // Get count using type-specific aliases (HB 4.3.4: smethod_4)
             string[] countAliases = GetCountAliases(objectiveType);
@@ -73,12 +72,27 @@ namespace Styx.Logic.Profiles.Quest
             if (countAttr != null)
                 int.TryParse(countAttr.Value, out objectiveCount);
 
-            var indexAttr = element.Attribute("Index");
+            var indexAttr = GetAttributeByAliases(element, new[] { "Index" });
             int objectiveIndex = -1;  // -1 = not specified, will search by ID instead
             if (indexAttr != null)
                 int.TryParse(indexAttr.Value, out objectiveIndex);
 
             return new ObjectiveNode(questId, objectiveType, objectiveId, objectiveName, objectiveCount, objectiveIndex);
+        }
+
+        private static string GetIdName(ObjectiveType objectiveType)
+        {
+            switch (objectiveType)
+            {
+                case ObjectiveType.KillMob:
+                    return "mobid";
+                case ObjectiveType.CollectItem:
+                    return "itemid";
+                case ObjectiveType.UseObject:
+                    return "objectid";
+                default:
+                    return null;
+            }
         }
 
         /// <summary>
@@ -117,21 +131,6 @@ namespace Styx.Logic.Profiles.Quest
                 default:
                     return new[] { "Count" };
             }
-        }
-
-        /// <summary>
-        /// Helper to get first matching attribute from array of aliases.
-        /// HB 4.3.4: Class570.smethod_3() - part of obfuscated utilities
-        /// </summary>
-        private static XAttribute GetAttributeByAliases(XElement element, string[] aliases)
-        {
-            foreach (var alias in aliases)
-            {
-                var attr = element.Attribute(alias);
-                if (attr != null)
-                    return attr;
-            }
-            return null;
         }
     }
 }

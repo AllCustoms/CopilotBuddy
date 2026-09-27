@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 
 
@@ -120,5 +121,10 @@ public abstract class OrderNode : IXmlObject
             default:
                 return new OrderNodeType?();
         }
+    }
+
+    protected static XAttribute GetAttributeByAliases(XElement element, params string[] aliases)
+    {
+        return element.Attributes().FirstOrDefault(attr => aliases.Contains(attr.Name.ToString(), StringComparer.InvariantCultureIgnoreCase));
     }
 }
