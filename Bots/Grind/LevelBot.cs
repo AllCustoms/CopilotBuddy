@@ -414,7 +414,7 @@ namespace Bots.Grind
                     ),
                     // Safe res timer expired (40 seconds)
                     new DecoratorContinue(
-                        ctx => _corpseWaitStopwatch.Elapsed.Seconds > 40,
+                        ctx => _corpseWaitStopwatch.Elapsed.TotalSeconds > 40,
                         new Sequence(
                             new ActionSetActivity("SafeRes timer expired - Grabbing our corpse where we are."),
                             new TreeSharp.Action(ctx => GrabCorpse()),
@@ -426,7 +426,7 @@ namespace Bots.Grind
                     // Near safe spot - grab corpse
                     new Sequence(
                         new DecoratorContinue(
-                            ctx => _corpseWaitStopwatch.Elapsed.Seconds < 40 && IsNearCurrentPoi(),
+                            ctx => _corpseWaitStopwatch.Elapsed.TotalSeconds < 40 && IsNearCurrentPoi(),
                             new Sequence(
                                 new ActionSetActivity("Grabbing corpse"),
                                 new TreeSharp.Action(ctx => GrabCorpse()),
