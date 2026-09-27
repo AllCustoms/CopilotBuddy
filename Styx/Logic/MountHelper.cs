@@ -227,10 +227,10 @@ namespace Styx.Logic
                         {
                             // WotLK 3.3.5a: no Mount.dbc. Classify by inspecting all spell effects.
                             // WotLK flying mount spells include one of these aura types:
-                            //   152 = SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED
-                            //   153 = SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED
-                            //   154 = SPELL_AURA_MOUNTED_FLIGHT_SPEED_ALWAYS
-                            //   156 = SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_NOT_STACK
+                            //   207 = SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED
+                            //   208 = SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED
+                            //   209 = SPELL_AURA_MOUNTED_FLIGHT_SPEED_ALWAYS
+                            //   211 = SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_NOT_STACK
                             // WotLK ground mounts only have aura 32 (MOD_INCREASE_MOUNTED_SPEED)
                             // with BasePoints ≤ 100 (60% or 100% speed).
                             // Flying mounts add a *second* speed effect with BasePoints > 100
@@ -241,7 +241,7 @@ namespace Styx.Logic
                                 if (effect == null) continue;
                                 int auraId = (int)effect.AuraType;
                                 // Primary: known flight-speed aura IDs from WotLK DBC.
-                                if (auraId == 152 || auraId == 153 || auraId == 154 || auraId == 156)
+                                if (auraId == 207 || auraId == 208 || auraId == 209 || auraId == 211)
                                 {
                                     Type = MountType.Flying;
                                     break;
