@@ -579,12 +579,8 @@ namespace Styx.Logic
             float z = (float?)element.Attribute("Z") ?? 0;
             Location = new WoWPoint(x, y, z);
 
-            var connectionsAttr = (string)element.Attribute("Connections");
-            if (!string.IsNullOrEmpty(connectionsAttr))
-            {
-                foreach (var conn in connectionsAttr.Split(','))
-                    Connections.Add(conn.Trim());
-            }
+            foreach (XElement connection in element.Descendants("Connection"))
+                Connections.Add(connection.Attribute("name").Value);
         }
 
         public void Connect(string nodeName)
@@ -595,6 +591,10 @@ namespace Styx.Logic
 
         public XElement ToXml()
         {
+            XElement connections = new XElement("Connections");
+            foreach (string connection in Connections)
+                connections.Add(new XElement("Connection", new XAttribute("name", connection)));
+
             return new XElement("Node",
                 new XAttribute("Name", Name ?? ""),
                 new XAttribute("MasterEntry", MasterEntry),
@@ -603,7 +603,7 @@ namespace Styx.Logic
                 new XAttribute("X", Location.X),
                 new XAttribute("Y", Location.Y),
                 new XAttribute("Z", Location.Z),
-                new XAttribute("Connections", string.Join(",", Connections))
+                connections
             );
         }
     }
