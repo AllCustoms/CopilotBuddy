@@ -77,7 +77,16 @@ public class ForcedMoveTo : ForcedBehavior
             {
                 if (Mount.ShouldMount(this.Location))
                     Mount.StateMount((LocationRetriever)(() => this.Location));
-                Navigator.MoveTo(this.Location);
+                MoveResult moveResult = Navigator.MoveTo(this.Location);
+                if (moveResult == MoveResult.ReachedDestination)
+                {
+                    hasReachedLocation = true;
+                }
+                else if (moveResult == MoveResult.Failed || moveResult == MoveResult.PathGenerationFailed)
+                {
+                    Logging.Write(System.Drawing.Color.OrangeRed, "MoveTo failed to move to the location: {0}", this.Location);
+                    hasReachedLocation = true;
+                }
             }
         }));
     }
