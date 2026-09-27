@@ -501,9 +501,6 @@
   <data name="LblBottingHours" xml:space="preserve">
     <value>Heures de bot :</value>
   </data>
-  <data name="LblDetectionRange" xml:space="preserve">
-    <value>Portée de détection :</value>
-  </data>
   <data name="LblHeightModifier" xml:space="preserve">
     <value>Modificateur de hauteur :</value>
   </data>

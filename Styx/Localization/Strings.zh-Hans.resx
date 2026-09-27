@@ -501,9 +501,6 @@
   <data name="LblBottingHours" xml:space="preserve">
     <value>挂机时间：</value>
   </data>
-  <data name="LblDetectionRange" xml:space="preserve">
-    <value>探测范围：</value>
-  </data>
   <data name="LblHeightModifier" xml:space="preserve">
     <value>高度修正：</value>
   </data>

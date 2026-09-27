@@ -159,7 +159,6 @@ namespace Styx.Localization
         public static string LblDrinkName => ResourceManager.GetString("LblDrinkName", Culture);
         public static string LblBlacklistTimer => ResourceManager.GetString("LblBlacklistTimer", Culture);
         public static string LblBottingHours => ResourceManager.GetString("LblBottingHours", Culture);
-        public static string LblDetectionRange => ResourceManager.GetString("LblDetectionRange", Culture);
         public static string LblHeightModifier => ResourceManager.GetString("LblHeightModifier", Culture);
         public static string LblLogLevel => ResourceManager.GetString("LblLogLevel", Culture);
         public static string LblLootRadius => ResourceManager.GetString("LblLootRadius", Culture);

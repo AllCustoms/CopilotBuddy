@@ -53,12 +53,6 @@ namespace Bots.Gatherbuddy
         public PathType PathingType { get; set; }
         
         /// <summary>
-        /// Maximum detection range for nodes (yards)
-        /// </summary>
-        [Setting, DefaultValue(70f)]
-        public float NodeDetectionRange { get; set; }
-        
-        /// <summary>
         /// Height modifier for flying (yards above ground)
         /// </summary>
         [Setting, DefaultValue(0f)]
