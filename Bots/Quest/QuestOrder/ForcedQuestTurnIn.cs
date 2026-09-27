@@ -61,8 +61,11 @@ public class ForcedQuestTurnIn : ForcedBehavior
 
     public WoWPoint Location { get; private set; }
 
-    // Dispose removed - we should NEVER abandon a quest we're trying to turn in!
-    
+    public override void Dispose()
+    {
+        StyxWoW.Me.QuestLog.AddCompletedQuest(this.QuestId);
+    }
+
     public override void OnStart()
     {
         string goalText = this.GetGoalText();
