@@ -56,19 +56,15 @@ namespace Styx.WoWInternals.WoWObjects
 			uint threatTableAddr = mob.BaseAddress + 4056;
 			var threatTable = wow.Read<ThreatTable>(threatTableAddr);
 
-			if (threatTable.TargetGuid != 0)
+			bool found = TryFindInThreatTable(threatTable.HashTable, (uint)unit.Guid, unit.Guid, out uint entryAddr);
+			if (threatTable.TargetGuid != 0 && found)
 			{
-				// Try to find unit in threat table
-				if (TryFindInThreatTable(threatTable.HashTable, (uint)unit.Guid, unit.Guid, out uint entryAddr))
-				{
-					return new UnitThreatInfo(wow.Read<ThreatEntry>(entryAddr));
-				}
+				return new UnitThreatInfo(wow.Read<ThreatEntry>(entryAddr));
 			}
 
-			// Not in threat table
 			return new UnitThreatInfo(new ThreatEntry
 			{
-				Status = 0,
+				Status = (byte)(found ? 1 : 0),
 				RawPercent = 0,
 				ThreatValue = 0,
 				TargetGuid = unit.Guid,
