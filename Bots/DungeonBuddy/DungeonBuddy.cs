@@ -2335,8 +2335,9 @@ namespace Bots.DungeonBuddy
             // Priority 6 (HB method_23 priority 6): boss PathBreadCrumbs
             // from the profile. Drives movement toward the boss when no
             // boss is in draw distance.
-            var currentProfileBoss = ProfileManager.CurrentProfile?.BossEncounters
-                .FirstOrDefault(b => b.IsAlive);
+            var currentBoss = BossManager.CurrentBoss;
+            var currentProfileBoss = currentBoss == null ? null : ProfileManager.CurrentProfile?.BossEncounters
+                .FirstOrDefault(b => b.Entry == currentBoss.Entry);
             if (currentProfileBoss != null && currentProfileBoss.PathBreadCrumbs.Count > 0)
             {
                 var crumb = currentProfileBoss.PathBreadCrumbs.Peek();
@@ -2461,8 +2462,9 @@ namespace Bots.DungeonBuddy
             // Profile.Boss.PathBreadCrumbs is populated from <Path><Hotspot .../></Path> in the XML,
             // or falls back to the boss's X/Y/Z coordinates when no explicit path is defined.
             // This is what drives movement toward the boss when no targets are visible.
-            var currentProfileBoss = ProfileManager.CurrentProfile?.BossEncounters
-                .FirstOrDefault(b => b.IsAlive);
+            var currentBoss = BossManager.CurrentBoss;
+            var currentProfileBoss = currentBoss == null ? null : ProfileManager.CurrentProfile?.BossEncounters
+                .FirstOrDefault(b => b.Entry == currentBoss.Entry);
             if (currentProfileBoss != null && currentProfileBoss.PathBreadCrumbs.Count > 0)
             {
                 var crumb = currentProfileBoss.PathBreadCrumbs.Peek();
@@ -2490,7 +2492,8 @@ namespace Bots.DungeonBuddy
                 return null;
 
             return ObjectManager.GetObjectsOfType<WoWUnit>()
-                .Where(u => u.IsValid && u.IsAlive && IsTargetableBossUnit(u, profileBosses))
+                .Where(u => u.IsValid && u.IsAlive && IsTargetableBossUnit(u, profileBosses)
+                         && Navigator.PathDistance(StyxWoW.Me.Location, u.Location, 100f) is float pathDist && pathDist < 100f)
                 .OrderBy(u =>
                 {
                     // Order by KillOrder from profile, then distance
@@ -2508,13 +2511,16 @@ namespace Bots.DungeonBuddy
         /// </summary>
         private static bool IsTargetableBossUnit(WoWUnit unit, IReadOnlyList<Profiles.Handlers.Boss> bosses)
         {
-            var currentBoss = bosses.FirstOrDefault(b => b.IsAlive);
-            if (currentBoss != null && unit.Entry == currentBoss.Entry)
-                return true;
             var unitBoss = bosses.FirstOrDefault(b => b.Entry == unit.Entry);
-            if (unitBoss != null && !unitBoss.Optional && unitBoss.IsAlive)
+            if (unitBoss == null)
+                return false;
+            var currentBoss = BossManager.CurrentBoss;
+            var currentProfileBoss = currentBoss == null ? null : bosses.FirstOrDefault(b => b.Entry == currentBoss.Entry);
+            if (currentProfileBoss != null && unit.Entry == currentProfileBoss.Entry)
                 return true;
-            return false;
+            return unitBoss.PathBreadCrumbs.Peek() == WoWPoint.Zero
+                && (!unitBoss.Optional || DungeonBuddySettings.Instance.KillOptionalBosses)
+                && (currentProfileBoss == null || unitBoss.KillOrder <= currentProfileBoss.KillOrder);
         }
 
         private WoWPoint GetSoloFarmFollowPoint(WoWPlayer player)
