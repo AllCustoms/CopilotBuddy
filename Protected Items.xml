@@ -32,6 +32,9 @@
   <Item name="Instant Poison" entry="43230" />
   <Item name="Instant Poison" entry="43231" />
 
+  <!-- Profession tools -->
+  <Item name="Mining Pick" entry="2901" />
+
   <!--Rune of Teleportation-->
   <Item name="" entry="17031" />
 
