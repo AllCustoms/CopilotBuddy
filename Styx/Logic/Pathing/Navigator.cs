@@ -671,6 +671,10 @@ namespace Styx.Logic.Pathing
 				return false;
 
 			uint mapId = (uint)(GetCurrentMapId());
+			TripperNav.TileIdentifier tile = TripperNav.TileIdentifier.GetByPosition(x, y);
+			if (!TripperNavigator.IsTileLoaded(mapId, tile.X, tile.Y) && !TripperNavigator.LoadTile(tile))
+				return false;
+
 			var position = new Vector3(x, y, 10000f); // Start from high up
 
 			if (TripperNavigator.FindNearestPoint(mapId, position, out Vector3 nearestPoint))
