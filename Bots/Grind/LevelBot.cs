@@ -651,16 +651,6 @@ namespace Bots.Grind
             if (!_lootEventsAttached)
             {
                 Lua.Events.AttachEvent("CHAT_MSG_LOOT", OnLootEvent);
-                BotEvents.Player.OnMobKilled += args =>
-                {
-                    if (!CharacterSettings.Instance.LootMobs ||
-                        RaFHelper.Leader != null ||
-                        Battlegrounds.IsInsideBattleground ||
-                        StyxWoW.Me.IsInInstance ||
-                        Targeting.GetAggroOnMeWithin(StyxWoW.Me.Location, 30f) != 0)
-                        return;
-                    StyxWoW.Sleep(1500);
-                };
                 _lootEventsAttached = true;
             }
 
@@ -758,9 +748,9 @@ namespace Bots.Grind
                                             new TreeSharp.Action(ctx => SleepForLag())
                                         )
                                     ),
-                                    new TreeSharp.Action(ctx => BotPoi.Current.AsObject.Interact()),
+                                    new TreeSharp.Action(ctx => BotPoi.Current.AsObject.Interact(true)),
                                     new WaitLuaEvent("LOOT_OPENED", 
-                                        () => BotPoi.Current.Type != PoiType.Loot ? 10 : 3,
+                                        () => BotPoi.Current.Type == PoiType.Loot || BotPoi.Current.Type == PoiType.Skin ? 3 : 10,
                                         new TreeSharp.Action(ctx =>
                                         {
                                             WoWObject lootObj = BotPoi.Current.AsObject;
@@ -775,14 +765,14 @@ namespace Bots.Grind
                                     // Skinning check
                                     new DecoratorContinue(
                                         ctx => (CharacterSettings.Instance.SkinMobs || CharacterSettings.Instance.NinjaSkin) &&
-                                               BotPoi.Current.AsObject != null &&
+                                               BotPoi.Current.Type == PoiType.Loot &&
                                                BotPoi.Current.AsObject is WoWUnit unit &&
+                                               unit.CreatureType == WoWCreatureType.Beast &&
                                                unit.SkinType == WoWCreatureSkinType.Leather &&
-                                               unit.Level < StyxWoW.Me.CanSkinLevel,
-                                        new WaitContinue(5,
-                                            ctx => BotPoi.Current.AsObject.ToUnit().CanSkin &&
-                                                   LootTargeting.Instance.FirstObject != null &&
-                                                   LootTargeting.Instance.FirstObject.Guid == BotPoi.Current.Guid,
+                                               unit.Level <= StyxWoW.Me.CanSkinLevel,
+                                        new WaitContinue(2,
+                                            ctx => BotPoi.Current.AsObject != null &&
+                                                   BotPoi.Current.AsObject.ToUnit().Skinnable,
                                             new ActionAlwaysSucceed()
                                         )
                                     ),
@@ -797,7 +787,7 @@ namespace Bots.Grind
                                         _lastLootPoiType = BotPoi.Current.Type;
                                         _lastLootGuid = BotPoi.Current.Guid;
                                     }),
-                                    new ActionClearPoi("Waiting for loot flag"),
+                                    new ActionClearPoi("Finished looting"),
                                     new TreeSharp.Action(ctx => SleepForLag())
                                 ),
                                 // Fallback - check if we can still loot
