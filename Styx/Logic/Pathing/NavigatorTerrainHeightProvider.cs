@@ -21,8 +21,6 @@ namespace Styx.Logic.Pathing
                 return heights;
 
             uint mapId = StyxWoW.Me?.MapId ?? 0;
-            if (mapId == 0)
-                return heights;
 
             var center = new Vector3(x, y, 0f);
             TripperNav.PolygonReference[] polygons = Navigator.TripperNavigator.QueryPolygons(mapId, center, HeightSearchExtents, 256);
