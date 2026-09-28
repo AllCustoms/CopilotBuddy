@@ -102,7 +102,7 @@ public class QuestArea : GrindArea
                     var centroid = (v1 + v2 + v3) / 3f;
 
                     var xnaPos = new Tripper.XNAMath.Vector3(centroid.X, centroid.Y, 0f);
-                    if (Navigator.FindMeshHeight(ref xnaPos))
+                    if (Navigator.FindHeight(ref xnaPos))
                     {
                         result.Add(new Vector3(xnaPos.X, xnaPos.Y, xnaPos.Z));
                     }
@@ -114,7 +114,7 @@ public class QuestArea : GrindArea
                 foreach (var point in poly)
                 {
                     var xnaPos = new Tripper.XNAMath.Vector3(point.X, point.Y, 0f);
-                    if (Navigator.FindMeshHeight(ref xnaPos))
+                    if (Navigator.FindHeight(ref xnaPos))
                     {
                         result.Add(new Vector3(xnaPos.X, xnaPos.Y, xnaPos.Z));
                     }
