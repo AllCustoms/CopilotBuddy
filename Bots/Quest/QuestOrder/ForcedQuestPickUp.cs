@@ -33,6 +33,7 @@ public class ForcedQuestPickUp : ForcedBehavior
     private static readonly Frame QuestTitleButton = new Frame("QuestTitleButton1");
     private static readonly Frame QuestFrameCompleteQuestButton = new Frame("QuestFrameCompleteQuestButton");
     private int lastShownQuestId = -1;
+    private WaitTimer _pickupTimer;
 
     public ForcedQuestPickUp(
         uint questId,
@@ -100,6 +101,7 @@ public class ForcedQuestPickUp : ForcedBehavior
         string goalText = this.GetGoalText();
         Logging.Write("[PickUp] {0}", (object)goalText);
         TreeRoot.GoalText = goalText;
+        this._pickupTimer = null;
     }
 
     private string GetGoalText()
@@ -149,11 +151,11 @@ public class ForcedQuestPickUp : ForcedBehavior
                 }))
             })),
             (Composite)new Decorator((CanRunDecoratorDelegate)(context => !(BotPoi.Current.AsObject != (WoWObject)null) ? (double)ForcedQuestPickUp.Me.Location.DistanceSqr(BotPoi.Current.Location) > 6.25 : !BotPoi.Current.AsObject.WithinInteractRange), (Composite)new ActionMoveToPoi()),
-            (Composite)new Decorator((CanRunDecoratorDelegate)(context => BotPoi.Current.AsObject != (WoWObject)null && BotPoi.Current.AsObject.WithinInteractRange), (Composite)new Sequence((ContextChangeHandler)(context => (object)BotPoi.Current.AsObject), new Composite[10]
+            (Composite)new Decorator((CanRunDecoratorDelegate)(context => BotPoi.Current.AsObject != (WoWObject)null && BotPoi.Current.AsObject.WithinInteractRange), (Composite)new Sequence((ContextChangeHandler)(context => (object)BotPoi.Current.AsObject), new Composite[11]
             {
-                // HB 4.3.4: 10 elements in sequence
                 (Composite)new ActionMoveStop(),
                 (Composite)new TreeSharp.Action((ActionDelegate)(context => this.CloseFrames(context))),
+                (Composite)new TreeSharp.Action((ActionDelegate)(context => this.CheckPickupTimeout(context))),
                 (Composite)new DecoratorContinue((CanRunDecoratorDelegate)(context => context is WoWUnit), (Composite)new TreeSharp.Action((ActionSucceedDelegate)(context => ((WoWUnit)context).Target()))),
                 (Composite)new TreeSharp.Action((ActionSucceedDelegate)(context => ((WoWObject)context).Interact())),
                 (Composite)new ActionSleep(1500),
@@ -192,6 +194,21 @@ public class ForcedQuestPickUp : ForcedBehavior
         QuestFrame.Instance.Close();
         StyxWoW.Sleep(250);
         return RunStatus.Running;
+    }
+
+    private RunStatus CheckPickupTimeout(object context)
+    {
+        if (this._pickupTimer == null)
+        {
+            this._pickupTimer = new WaitTimer(TimeSpan.FromSeconds(40.0));
+            this._pickupTimer.Reset();
+        }
+        if (this._pickupTimer.IsFinished)
+        {
+            TreeRoot.Stop(string.Format("Failed to pickup quest at {0} after 20 seconds", ((WoWObject)context).Name));
+            return RunStatus.Failure;
+        }
+        return RunStatus.Success;
     }
 
     private bool IsGossipOrQuestListVisible(object context)

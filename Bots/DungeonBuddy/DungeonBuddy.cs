@@ -116,6 +116,7 @@ namespace Bots.DungeonBuddy
             _lastObservedLfgMapId = _lastMapId;
             _lastObservedLfgDungeonId = LfgManager.CurrentLfgDungeonId;
             _root = null;
+            OnMapChanged(_lastMapId);
 
             // SoloFarm HB parity: précharger le donjon sélectionné même hors instance
             // pour avoir CurrentDungeon + profile disponibles avant d'entrer.
@@ -176,21 +177,6 @@ namespace Bots.DungeonBuddy
             // Keep avoidance updated every pulse.
             Bots.DungeonBuddy.Avoidance.AvoidanceManager.Update();
             DynamicBlackspotManager.Pulse();
-
-            // Recovery: si on est dans un donjon mais CurrentDungeon == null (race condition
-            // pendant le loading screen — OnMapChanged a pu fire avant IsDungeon = true),
-            // réinitialiser immédiatement.
-            if (StyxWoW.Me.CurrentMap.IsDungeon && DungeonManager.CurrentDungeon == null)
-            {
-                var settings2 = DungeonBuddySettings.Instance;
-                if (settings2.QueueType == QueueType.SoloFarm && settings2.SelectedDungeonIds.Length > 0)
-                    DungeonManager.SetDungeonById(settings2.SelectedDungeonIds[0]);
-                else
-                    DungeonManager.SetDungeon(StyxWoW.Me.MapId);
-
-                _root = null;
-            }
-
         }
 
         private void OnMapChanged(uint newMapId)
@@ -1237,17 +1223,6 @@ namespace Bots.DungeonBuddy
                     )
                 ),
 
-                // --- ABANDONED IN DUNGEON: Teleport out ---
-                new Decorator(
-                    ctx => LfgManager.CurrentState == LfgState.AbandonedInDungeon,
-                    new Action(ctx =>
-                    {
-                        Logging.Write("[DungeonBuddy] Abandoned in dungeon, teleporting out...");
-                        LfgManager.TeleportOut();
-                        return RunStatus.Success;
-                    })
-                ),
-
                 // --- REQUEUE (HB method_110 branch) ---
                 new Decorator(
                     ctx => ShouldRequeue && DungeonBuddySettings.Instance.QueueType != QueueType.SoloFarm,
@@ -1468,6 +1443,8 @@ namespace Bots.DungeonBuddy
                 DungeonManager.SetDungeonById(dungeonId);
             else if (StyxWoW.Me.CurrentMap.IsDungeon || StyxWoW.Me.CurrentMap.IsRaid)
                 DungeonManager.SetDungeon(StyxWoW.Me.MapId);
+
+            _root = null;
         }
 
         // ═══════════════════════════════════════════════════════════
@@ -2218,6 +2195,27 @@ namespace Bots.DungeonBuddy
             return new Decorator(
                 ctx => StyxWoW.Me.CurrentMap.IsDungeon,
                 new PrioritySelector(
+                    new Decorator(
+                        ctx => _proposalAcceptTimer.IsFinished,
+                        new Decorator(
+                            ctx => LfgManager.DungeonCompletedReason != CompleteReason.AbandonedInDungeon &&
+                                   LfgManager.CurrentState == LfgState.AbandonedInDungeon &&
+                                   DungeonBuddySettings.Instance.PartyMode == PartyMode.Off,
+                            new Sequence(
+                                new Action(ctx =>
+                                {
+                                    LfgManager.SetDungeonCompleted(CompleteReason.Completed, 10);
+                                    return RunStatus.Success;
+                                }),
+                                new Action(ctx =>
+                                {
+                                    Logging.Write("[DungeonBuddy] Dungeon run is over. Leaving in {0} seconds", LfgManager.ExitDelayTimer.WaitTime.TotalSeconds);
+                                    return RunStatus.Success;
+                                })
+                            )
+                        )
+                    ),
+
                     // HB method_4/method_5 parity (smethod_81/smethod_85/smethod_96):
                     // when a valid FirstUnit exists and current POI is not Kill,
                     // switch to Kill so combat branch can engage aggroed mobs.
