@@ -61,6 +61,8 @@ namespace Styx.WoWInternals.WoWObjects
         /// </summary>
         private readonly Dictionary<ulong, WoWUnitReaction> _reactionCacheByGuid = new Dictionary<ulong, WoWUnitReaction>();
 
+        private readonly WaitTimer _reactionCacheTimer = new WaitTimer(TimeSpan.FromSeconds(2.0));
+
         #endregion
 
         #region Display Flags & Dynamic Flags
@@ -1377,6 +1379,13 @@ namespace Styx.WoWInternals.WoWObjects
 
             if (StyxWoW.Me.IsHorde && HordeReactionsByEntry.ContainsKey(entry))
                 return HordeReactionsByEntry[entry];
+
+            if (_reactionCacheTimer.IsFinished)
+            {
+                _reactionCacheByEntry.Clear();
+                _reactionCacheByGuid.Clear();
+                _reactionCacheTimer.Reset();
+            }
 
             // Check instance cache by entry first, then by GUID
             if (entry != 0 && _reactionCacheByEntry.ContainsKey(entry))
