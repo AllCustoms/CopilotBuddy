@@ -14,9 +14,9 @@ For players who just want to launch the bot without compiling anything, a comple
 
 Just extract the archive next to your WoW 3.3.5a client, double-click `CopilotBuddy.exe`, attach to the game, and you are ready to play.
 
-| Mirror | Download (v1.6.7.4) |
+| Mirror | Download (v1.6.7.5) |
 | --- | --- |
-| **Mega.nz** | https://mega.nz/file/iA4QUbLB#K2DJ8X9zQH86-pAbxEmBEv5SeFfLbW-m8Bj8ICmb6dg |
+| **Mega.nz** | https://mega.nz/file/vQo30RhQ#TEuCYVpLBEutwy7Ux4ejmX0Ccag5cDAV6YXSDVeBw70 |
 
 > Checksums are listed on the Discord.
 
