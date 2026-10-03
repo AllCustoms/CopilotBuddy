@@ -121,7 +121,7 @@ namespace Styx.WoWInternals
                 if (rowPtr == 0)
                     return null;
 
-                return new Row(new IntPtr(rowPtr));
+                return new Row(new IntPtr(unchecked((int)rowPtr)));
             }
 
             public Row? GetLocalizedRow(int index)
